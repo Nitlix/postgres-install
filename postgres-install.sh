@@ -45,6 +45,16 @@ else
     # Prompt the user to set a password for the 'postgres' user
     echo "Setting up 'postgres' user password..."
     sudo -S -u postgres psql -c "\password postgres"
+
+    # Find the pg_hba.conf file and append the necessary line
+    echo "Configuring PostgreSQL to allow connections from any IP address..."
+    PG_HBA_CONF_FILE=$(find /etc/postgresql/ -name pg_hba.conf)
+    if [[ -n "$PG_HBA_CONF_FILE" ]]; then
+        echo "host all all 0.0.0.0/0 md5" | sudo tee -a "$PG_HBA_CONF_FILE" > /dev/null
+        echo "Configuration to allow connections from any IP address added to pg_hba.conf."
+    else
+        echo "pg_hba.conf not found. Skipping configuration."
+    fi
     
     # Add listen_addresses setting to postgresql.conf
     echo "Configuring PostgreSQL to listen on all addresses..."
