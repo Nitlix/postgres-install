@@ -24,7 +24,7 @@ if [ -d "/etc/postgresql/" ]; then
             ;;
         3)
             echo "Deleting a database..."
-            read -p "Enter the name of the database to delete: " db_name
+            read -p "Enter the name of the database to delete (not template or postgres): " db_name
             sudo -u postgres dropdb "$db_name"
             echo "Database '$db_name' deleted successfully."
             ;;
@@ -51,7 +51,8 @@ else
     echo "listen_addresses = '*'" | sudo tee -a /etc/postgresql/*/main/postgresql.conf > /dev/null
     
     # Restart PostgreSQL service
-    echo "Restarting PostgreSQL service..."
+    echo "Restarting and enabling PostgreSQL service..."
     sudo systemctl restart postgresql
+    sudo systemctl enable postgresql
     echo "Postgres setup complete."
 fi
