@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+
 # Check if PostgreSQL configuration exists
 if [ -d "/etc/postgresql/" ]; then
     echo "PostgreSQL detected."
@@ -42,8 +44,7 @@ else
     
     # Prompt the user to set a password for the 'postgres' user
     echo "Setting up 'postgres' user password..."
-    read -s -p "Enter password for 'postgres': " password
-    echo "$password" | sudo -S -u postgres psql -c "\password postgres"
+    sudo -S -u postgres psql -c "\password postgres"
     
     # Add listen_addresses setting to postgresql.conf
     echo "Configuring PostgreSQL to listen on all addresses..."
