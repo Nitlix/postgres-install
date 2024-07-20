@@ -2,6 +2,12 @@
 
 
 
+#Reject if not root
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
+
 # Check if PostgreSQL configuration exists
 if [ -d "/etc/postgresql/" ]; then
     echo "PostgreSQL detected."
@@ -11,6 +17,7 @@ if [ -d "/etc/postgresql/" ]; then
     echo "1) Display all databases"
     echo "2) Create a database"
     echo "3) Delete a database"
+    echo "4) Enable TimescaleDB on a database"
     read -p "Enter your choice (1-3): " user_choice
     
     case $user_choice in
@@ -30,6 +37,11 @@ if [ -d "/etc/postgresql/" ]; then
             sudo -u postgres dropdb "$db_name"
             echo "Database '$db_name' deleted successfully."
             ;;
+        4)
+            echo "Enabling TimescaleDB on a database..."
+            read -p "Enter the name of the database to enable TimescaleDB on: " db_name
+            sudo -S -u postgres psql -d "$db_name" -c "CREATE EXTENSION IF NOT EXISTS timescaledb;"
+            echo "TimescaleDB enabled on database '$db_name'."
         *)
             echo "Invalid choice. Exiting..."
             exit 1
@@ -60,6 +72,21 @@ else
     echo "Configuring PostgreSQL to listen on all addresses..."
     sudo sed -i '/^#listen_addresses =/ s/^/#/' /etc/postgresql/*/main/postgresql.conf
     echo "listen_addresses = '*'" | sudo tee -a /etc/postgresql/*/main/postgresql.conf > /dev/null
+
+    read -p "Do you want to install TimescaleDB? (Y/N): " timescaledb_choice
+    if [ "$timescaledb_choice" == "Y" ] || [ "$timescaledb_choice" == "y" ]; then
+        echo "Installing TimescaleDB..."
+        echo "deb https://packagecloud.io/timescale/timescaledb/debian/ $(lsb_release -c -s) main" | sudo tee /etc/apt/sources.list.d/timescaledb.list
+        wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/timescaledb.gpg
+        sudo apt update
+        sudo apt install timescaledb-2-postgresql-16 postgresql-client-16 -y
+
+
+        sudo timescaledb-tune --quiet --yes
+        echo "TimescaleDB installed and tuned successfully."
+    else
+        echo "Skipping TimescaleDB installation."
+    fi
     
     # Restart PostgreSQL service
     echo "Restarting and enabling PostgreSQL service..."
