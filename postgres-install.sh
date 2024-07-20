@@ -18,7 +18,7 @@ if [ -d "/etc/postgresql/" ]; then
     echo "2) Create a database"
     echo "3) Delete a database"
     echo "4) Enable TimescaleDB on a database"
-    read -p "Enter your choice (1-3): " user_choice
+    read -p "Enter your choice (1-4): " user_choice
     
     case $user_choice in
         1)
