@@ -42,6 +42,7 @@ if [ -d "/etc/postgresql/" ]; then
             read -p "Enter the name of the database to enable TimescaleDB on: " db_name
             sudo -S -u postgres psql -d "$db_name" -c "CREATE EXTENSION IF NOT EXISTS timescaledb;"
             echo "TimescaleDB enabled on database '$db_name'."
+            ;;
         *)
             echo "Invalid choice. Exiting..."
             exit 1
