@@ -77,7 +77,21 @@ else
     read -p "Do you want to install TimescaleDB? (Y/N): " timescaledb_choice
     if [ "$timescaledb_choice" == "Y" ] || [ "$timescaledb_choice" == "y" ]; then
         echo "Installing TimescaleDB..."
-        echo "deb https://packagecloud.io/timescale/timescaledb/debian/ $(lsb_release -c -s) main" | sudo tee /etc/apt/sources.list.d/timescaledb.list
+
+        # Prompt whether they're using debian or ubuntu
+        echo "Please choose the TimescaleDB distribution:"
+        echo "1) Debian"
+        echo "2) Ubuntu"
+        read -p "Enter your choice (1-2): " timescaledb_dist
+        
+        if [ "$timescaledb_dist" == "1" ]; then
+            echo "deb https://packagecloud.io/timescale/timescaledb/debian/ $(lsb_release -c -s) main" | sudo tee /etc/apt/sources.list.d/timescaledb.list
+        elif [ "$timescaledb_dist" == "2" ]; then
+            echo "deb https://packagecloud.io/timescale/timescaledb/ubuntu/ $(lsb_release -c -s) main" | sudo tee /etc/apt/sources.list.d/timescaledb.list
+        else
+            echo "Invalid choice. Exiting..."
+            exit 1
+        fi
         wget --quiet -O - https://packagecloud.io/timescale/timescaledb/gpgkey | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/timescaledb.gpg
         sudo apt update
         sudo apt install timescaledb-2-postgresql-16 postgresql-client-16 -y
